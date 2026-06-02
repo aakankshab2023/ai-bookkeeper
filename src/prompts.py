@@ -28,3 +28,16 @@ Extract invoice data and return ONLY valid JSON with these fields:
 
 No extra text. No markdown. Just the JSON object.
 """
+
+RECEIPT_EXTRACTION_PROMPT = """
+Extract receipt data and return ONLY valid JSON with these fields:
+- merchant_name
+- date
+- items (list of {description, amount})
+- subtotal
+- tax
+- total
+- category (one of: Meals, Travel, Software, Office, Marketing, Other)
+
+No extra text. No markdown. Just the JSON object.
+"""
