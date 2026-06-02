@@ -12,3 +12,19 @@ Return ONLY a JSON object with exactly these three fields:
 
 No extra text. No markdown. Just the JSON object.
 """
+
+INVOICE_EXTRACTION_PROMPT = """
+Extract invoice data and return ONLY valid JSON with these fields:
+- invoice_number
+- invoice_date
+- due_date
+- vendor_name
+- client_name
+- line_items (list of {description, amount})
+- subtotal
+- tax_amount
+- total_amount
+- status (paid/unpaid)
+
+No extra text. No markdown. Just the JSON object.
+"""

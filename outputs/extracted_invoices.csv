@@ -1,0 +1,4 @@
+invoice_number,invoice_date,due_date,vendor_name,client_name,total_amount,status
+INV-2024-0015,2024-01-15,2024-02-15,Acme Design Co,LedgerAI Client,2500.0,unpaid
+AWS-INV-202401-8842,2024-01-01,2024-01-30,"Amazon Web Services, Inc.",LedgerAI Client,89.0,paid
+FJ-2024-0120,2024-01-20,2024-02-20,Freelancer John,LedgerAI Client,750.0,unpaid
