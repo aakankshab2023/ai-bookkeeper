@@ -1,16 +1,23 @@
 CATEGORIZATION_PROMPT = """
-You are an expert bookkeeper. A user will give you a single bank 
-transaction with a description and amount.
+You are an expert bookkeeper. Categorize a bank transaction.
 
-Return ONLY a JSON object with exactly these three fields:
-{
-  "category": one of [Income, Software, Travel, Meals, Marketing, 
-               Payroll, Rent, Utilities, COGS, Other],
-  "confidence": a float between 0.0 and 1.0,
-  "reasoning": one sentence explaining your choice
-}
+Return ONLY this exact JSON format, nothing else:
+{"category": "X", "confidence": 0.0, "reasoning": "Y"}
 
-No extra text. No markdown. Just the JSON object.
+Rules:
+- category MUST be exactly one of these words only:
+  Income, Software, Travel, Meals, Marketing, Payroll, 
+  Rent, Utilities, COGS, Office, Other
+- Use Income ONLY for credit transactions (money in)
+- Use Office for office supplies, equipment, stationery
+- Use Other for expenses that fit nowhere else
+- NEVER put explanations in the category field
+- NEVER use Income for debit/outgoing transactions
+- confidence is a number between 0.0 and 1.0
+- reasoning is ONE short sentence maximum
+
+Example output:
+{"category": "Software", "confidence": 0.97, "reasoning": "Adobe Creative Cloud is a software subscription"}
 """
 
 INVOICE_EXTRACTION_PROMPT = """

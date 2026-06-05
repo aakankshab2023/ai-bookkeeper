@@ -18,7 +18,9 @@ def process_statement(csv_path: str | Path) -> list[dict]:
 
     for txn in tqdm(transactions, desc="Categorizing transactions"):
         try:
-            ai_result = categorize_transaction(txn["description"], txn["amount"])
+            ai_result = categorize_transaction(
+                txn["description"], txn["amount"], txn["type"]
+            )
             row = {**txn, **ai_result}
         except Exception as e:
             row = {

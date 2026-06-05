@@ -1,0 +1,32 @@
+date,description,amount,type,category,confidence,reasoning
+2024-01-03,STRIPE TRANSFER DESIGNS BY LENA,2840.0,credit,Income,1.0,It's a credit transaction
+2024-01-05,ADOBE *CREATIVE CLOUD,54.99,debit,Software,0.99,Adobe Creative Cloud is a software subscription
+2024-01-07,FIGMA INC SUBSCRIPTION,15.0,debit,Software,0.95,Figma is a software subscription
+2024-01-08,UBER TRIP 847291 SEATTLE WA,22.4,debit,Travel,0.95,UBER is a transportation service
+2024-01-10,ZELLE DEPOSIT MERIDIAN HEALTH LOGO,4500.0,credit,Income,1.0,It's a credit transaction
+2024-01-12,AMAZON MKTPLACE*2K4F8 SEATTLE WA,127.49,debit,Office,0.8,Amazon often sells office supplies
+2024-01-14,NOTION LABS INC,10.0,debit,Software,0.95,Notion is a software product
+2024-01-15,GUSTO PAYROLL DESIGNS BY LENA,3500.0,debit,Payroll,0.99,Gusto is a payroll service
+2024-01-17,UBER EATS HELP.UBER.COM,58.32,debit,Meals,0.95,Uber Eats is a food delivery service
+2024-01-19,AWS AMAZON WEB SERVICES,41.87,debit,Software,0.99,AWS is a cloud software service
+2024-01-22,STAPLES 00142 PORTLAND OR,89.17,debit,Office,0.95,Staples is an office supply store
+2024-01-24,SWEETGREEN SEATTLE WA,36.5,debit,Meals,0.95,Sweetgreen is a restaurant chain
+2024-01-26,ACH CREDIT BLOOM & CO PACKAGING,2200.0,credit,Income,1.0,Transaction is a credit
+2024-01-29,VERCEL INC PRO PLAN,20.0,debit,Software,0.95,Vercel is a web hosting and software platform
+2024-02-01,SQ *MKTPLACE SEATTLE WA,127.0,debit,Other,0.8,Unknown vendor with no clear category
+2024-02-03,MOBILE CHECK DEPOSIT,1650.0,credit,Income,1.0,It's a credit transaction
+2024-02-05,ADOBE *CREATIVE CLOUD,54.99,debit,Software,0.99,Adobe Creative Cloud is a software subscription
+2024-02-07,FIGMA INC SUBSCRIPTION,15.0,debit,Software,0.99,Figma is a software subscription
+2024-02-09,LYFT RIDE 02/09 SEATTLE WA,19.85,debit,Travel,0.95,Lyft is a ride-hailing service
+2024-02-11,GOOGLE WORKSPACE,18.0,debit,Software,0.95,Google Workspace is a software subscription
+2024-02-13,BLUE BOTTLE COFFEE SEATTLE,14.75,debit,Meals,0.95,Blue Bottle Coffee is a coffee shop
+2024-02-15,OFFICE DEPOT #1128,43.28,debit,Office,0.95,Transaction is from Office Depot
+2024-02-18,WIRE IN APEX REALTY WEBSITE MOCKUPS,5800.0,credit,Income,1.0,It's a credit transaction with money in.
+2024-02-20,CLOUDFLARE INC,25.0,debit,Software,0.95,Cloudflare is a cloud services provider
+2024-02-22,PAYPAL INST XFER 8847291,200.0,debit,Other,0.5,Unknown transfer purpose
+2024-02-24,UBER TRIP 902184 SEATTLE WA,31.6,debit,Travel,0.95,UBER is a transportation service
+2024-02-26,STRIPE TRANSFER DESIGNS BY LENA,1975.5,credit,Income,1.0,It's a credit transaction
+2024-02-28,NOTION LABS INC,10.0,debit,Software,0.95,Notion is a software tool
+2024-03-01,AWS AMAZON WEB SERVICES,52.14,debit,Software,0.99,AWS is a cloud computing service
+2024-03-04,GODADDY.COM DOMAIN RENEW,17.99,debit,Software,0.95,Godaddy is a web services provider
+2024-03-06,CHIPOTLE ONLINE ORDER,24.18,debit,Meals,0.99,Chipotle is a restaurant
