@@ -14,7 +14,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 DATA_DIR = BASE_DIR / "data"
 OUTPUT_DIR = BASE_DIR / "outputs"
 
-STATEMENT_PATH = DATA_DIR / "sample_statements" / "test_statement.csv"
+STATEMENT_PATH = DATA_DIR / "sample_statements" / "extracted_from_pdf.csv"
 INVOICES_DIR = DATA_DIR / "sample_invoices"
 RECEIPTS_DIR = DATA_DIR / "sample_receipts"
 
@@ -212,13 +212,21 @@ def _print_summary(
     print("=" * width + "\n")
 
 
-def run_full_pipeline() -> dict:
+def run_full_pipeline(
+    bank_statement_path: str | Path | None = None,
+    invoices_folder: str | Path | None = None,
+    receipts_folder: str | Path | None = None,
+) -> dict:
+    statement_path = Path(bank_statement_path or STATEMENT_PATH)
+    invoices_dir = Path(invoices_folder or INVOICES_DIR)
+    receipts_dir = Path(receipts_folder or RECEIPTS_DIR)
+
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
     # STEP 1 - Bank statement
     print("\n--- STEP 1: Processing bank statement ---")
     try:
-        raw_transactions = load_bank_statement(STATEMENT_PATH)
+        raw_transactions = load_bank_statement(statement_path)
     except Exception as e:
         print(f"Failed to load bank statement: {e}")
         raw_transactions = []
@@ -229,13 +237,13 @@ def run_full_pipeline() -> dict:
 
     # STEP 2 - Invoices
     print("\n--- STEP 2: Processing invoices ---")
-    invoices = _process_invoices(INVOICES_DIR)
+    invoices = _process_invoices(invoices_dir)
     paid_invoices = [i for i in invoices if i["status"] == "paid"]
     unpaid_invoices = [i for i in invoices if i["status"] == "unpaid"]
 
     # STEP 3 - Receipts
     print("\n--- STEP 3: Processing receipts ---")
-    receipts = _process_receipts(RECEIPTS_DIR)
+    receipts = _process_receipts(receipts_dir)
 
     # STEP 4 - Reconciliation
     print("\n--- STEP 4: Reconciliation ---")
@@ -292,14 +300,29 @@ def run_full_pipeline() -> dict:
     )
 
     return {
+        "summary": {
+            "total_revenue": total_income,
+            "total_expenses": total_expenses,
+            "net_profit": net_profit,
+            "accounts_receivable": unpaid_total,
+            "transactions_processed": len(categorized),
+            "invoices_processed": len(invoices),
+            "receipts_processed": len(receipts),
+            "matched_transactions": matched_count,
+            "unmatched_transactions": unmatched_count,
+        },
+        "pl_statement": pl_rows,
+        "cash_book": categorized,
+        "accounts_receivable": unpaid_invoices,
+        "expense_ledger": expense_ledger,
+        "reconciliation": reconciliation,
+        "receipts": receipts,
         "transactions": categorized,
         "income": income,
         "expenses": expenses,
         "invoices": invoices,
         "paid_invoices": paid_invoices,
         "unpaid_invoices": unpaid_invoices,
-        "receipts": receipts,
-        "reconciliation": reconciliation,
         "pl": {
             "total_income": total_income,
             "expense_totals": expense_totals,

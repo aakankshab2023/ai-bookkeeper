@@ -1,32 +1,24 @@
 date,description,amount,type,category,confidence,reasoning
-2024-01-03,STRIPE TRANSFER DESIGNS BY LENA,2840.0,credit,Income,0.9,"The transaction is labeled as a Stripe transfer, which is a common payment processing service, and the description includes the phrase 'DESIGNS BY LENA', suggesting it is a business receipt."
-2024-01-05,ADOBE *CREATIVE CLOUD,54.99,debit,Software,0.9,"I chose Software because the transaction description mentions Adobe Creative Cloud, which is a well-known software subscription service."
-2024-01-07,FIGMA INC SUBSCRIPTION,15.0,debit,Software,0.9,"I chose Software because the transaction is for a subscription to Figma, a well-known design software platform."
-2024-01-08,UBER TRIP 847291 SEATTLE WA,22.4,debit,Travel,0.9,"I chose Travel because the transaction description mentions 'UBER TRIP', which is a well-known ride-hailing service."
-2024-01-10,ZELLE DEPOSIT MERIDIAN HEALTH LOGO,4500.0,credit,Income,0.9,"The transaction is a deposit and contains the word 'LOGO' which suggests it may be a business or organizational name, likely indicating income from a company called Meridian Health."
-2024-01-12,AMAZON MKTPLACE*2K4F8 SEATTLE WA,127.49,debit,Other,0.8,"I chose 'Other' because the description 'AMAZON MKTPLACE' suggests a purchase from Amazon, but the nature of the purchase is unclear, so it doesn't fit neatly into one of the more specific categories."
-2024-01-14,NOTION LABS INC,10.0,debit,Software,0.9,I chose Software because Notion Labs Inc is the company behind the popular note-taking and productivity software Notion.
-2024-01-15,GUSTO PAYROLL DESIGNS BY LENA,3500.0,debit,Payroll,0.9,"The transaction description contains the word 'PAYROLL', which strongly indicates that the transaction is related to employee salary payments."
-2024-01-17,UBER EATS HELP.UBER.COM,58.32,debit,Meals,0.9,"I chose Meals because the transaction is with Uber Eats, a food delivery service."
-2024-01-19,AWS AMAZON WEB SERVICES,41.87,debit,Software,0.9,"I chose Software because the transaction is with Amazon Web Services, which is a cloud computing platform commonly used for software development and infrastructure."
-2024-01-22,STAPLES 00142 PORTLAND OR,89.17,debit,Office Supplies,0.8,I chose Office Supplies because Staples is a well-known office supply store and the transaction amount is consistent with a typical office supply purchase.
-2024-01-24,SWEETGREEN SEATTLE WA,36.5,debit,Meals,0.9,"I chose Meals because Sweetgreen is a well-known restaurant chain, suggesting this transaction is for a food purchase."
-2024-01-26,ACH CREDIT BLOOM & CO PACKAGING,2200.0,credit,COGS,0.8,"I chose COGS because the description mentions a packaging company, suggesting a business-to-business transaction likely related to the cost of goods sold."
-2024-01-29,VERCEL INC PRO PLAN,20.0,debit,Software,0.9,"I chose Software because the transaction is for a pro plan from Vercel, a company that provides cloud platform services for websites and applications."
-2024-02-01,SQ *MKTPLACE SEATTLE WA,127.0,debit,Other,0.8,"I chose 'Other' because the transaction description 'SQ *MKTPLACE SEATTLE WA' is vague and could correspond to a variety of purchases, such as online shopping or marketplace fees."
-2024-02-03,MOBILE CHECK DEPOSIT,1650.0,credit,Income,0.9,"The transaction is a mobile check deposit, which is a common method for depositing funds into an account, indicating it is likely income."
-2024-02-05,ADOBE *CREATIVE CLOUD,54.99,debit,Software,0.9,"I chose Software because the transaction is for Adobe Creative Cloud, which is a software subscription service."
-2024-02-07,FIGMA INC SUBSCRIPTION,15.0,debit,Software,0.9,"I chose Software because the transaction description includes the word 'SUBSCRIPTION' and 'FIGMA INC', which is a well-known software company."
-2024-02-09,LYFT RIDE 02/09 SEATTLE WA,19.85,debit,Travel,0.9,"I chose Travel as the category because the description mentions a Lyft ride, which is a transportation service."
-2024-02-11,GOOGLE WORKSPACE,18.0,debit,Software,0.9,"The transaction is for Google Workspace, which is a software service, indicating a high likelihood it belongs to the Software category."
-2024-02-13,BLUE BOTTLE COFFEE SEATTLE,14.75,debit,Meals,0.9,"I chose Meals because the transaction description includes the name of a coffee shop, Blue Bottle Coffee, which is a common place where people purchase food and drinks."
-2024-02-15,OFFICE DEPOT #1128,43.28,debit,Software,0.6,"I chose Software because Office Depot is a store that often sells software and computer supplies, although it's also possible the purchase was for other office supplies."
-2024-02-18,WIRE IN APEX REALTY WEBSITE MOCKUPS,5800.0,credit,Software,0.8,"I chose Software because the transaction description mentions 'WEBSITE MOCKUPS', which is a typical software or web development service."
-2024-02-20,CLOUDFLARE INC,25.0,debit,Software,0.9,"I chose Software because Cloudflare is a well-known cloud services company that provides software solutions, making it likely that this transaction is for a software-related expense."
-2024-02-22,PAYPAL INST XFER 8847291,200.0,debit,Income,0.8,"I chose Income because the transaction is an instant PayPal transfer, which is often used to receive payments or transfers from other accounts."
-2024-02-24,UBER TRIP 902184 SEATTLE WA,31.6,debit,Travel,0.9,"I chose Travel because the transaction description specifically mentions 'UBER TRIP', which is a well-known ride-sharing service."
-2024-02-26,STRIPE TRANSFER DESIGNS BY LENA,1975.5,credit,Income,0.9,"The transaction is a transfer from Stripe, a payment processing system, indicating it is likely a payment for goods or services provided by the business, such as DESIGNS BY LENA."
-2024-02-28,NOTION LABS INC,10.0,debit,Software,0.8,I chose Software because Notion Labs Inc is the company behind the popular note-taking and productivity software Notion.
-2024-03-01,AWS AMAZON WEB SERVICES,52.14,debit,Software,0.9,"I chose Software because the transaction is from Amazon Web Services, which is a well-known cloud computing platform used for software and technology services."
-2024-03-04,GODADDY.COM DOMAIN RENEW,17.99,debit,Software,0.9,"I chose Software because the transaction is for a domain renewal with GoDaddy, a company that provides web services and software."
-2024-03-06,CHIPOTLE ONLINE ORDER,24.18,debit,Meals,0.9,"I chose Meals because the transaction description mentions an online order from Chipotle, which is a well-known restaurant chain."
+10/02,POS PURCHASE,4.23,debit,Meals,0.8,POS purchase is often a food transaction
+10/03,PREAUTHORIZED CREDIT,763.01,credit,Income,1.0,It's a credit transaction
+10/04,POS PURCHASE,11.68,debit,Meals,0.85,POS purchase indicates a retail transaction
+10/05,CHECK 1234,9.98,debit,Office,0.8,Check suggests a purchase of office supplies
+10/05,POS PURCHASE,25.5,debit,Meals,0.8,POS purchase is often a food or meal transaction
+10/08,POS PURCHASE,59.08,debit,Office,0.8,POS purchase could be office supplies
+10/12,CHECK 1236,69.0,debit,Office,0.8,Check is likely for office supplies
+10/14,CHECK 1237,180.63,debit,Rent,0.8,CHECK suggests a monthly payment
+10/14,POS PURCHASE,18.96,debit,Meals,0.85,POS purchase suggests a point-of-sale transaction
+10/16,PREAUTHORIZED CREDIT,763.01,credit,Income,1.0,It's a credit transaction
+10/22,ATM WITHDRAWAL,140.0,debit,Other,0.8,ATM withdrawal is a generic debit transaction
+10/28,CHECK 1238,91.06,debit,Office,0.8,Check suggests payment for supplies
+10/30,CHECK 1239,451.2,debit,Rent,0.8,CHECK is often used for rent payments
+10/30,CHECK 1246,37.07,debit,Office,0.8,Check suggests a payment for supplies
+10/30,POS PURCHASE,18.67,debit,Meals,0.85,POS purchase suggests a point of sale transaction likely for food
+10/31,CHECK 1247,100.0,debit,Office,0.8,Check suggests a payment for a physical item
+10/31,CHECK 1248,78.24,debit,Office,0.8, CHECK 1248 suggests a purchase
+10/31,PREAUTHORIZED CREDIT,350.0,credit,Income,0.99,It is a credit transaction
+11/02,CHECK 1249,52.23,debit,Meals,0.8,Check suggests a restaurant or food purchase
+11/09,INTEREST CREDIT,0.26,credit,Income,1.0,It's a credit transaction
+11/09,SERVICE CHARGE,12.0,debit,Other,0.8,It's a bank service charge
+10/07,POS PURCHASE,31.57,debit,Meals,0.85,POS purchase is likely a restaurant or food transaction
+10/10,POS PURCHASE,18.96,debit,Meals,0.85,POS purchase suggests a retail transaction

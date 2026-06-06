@@ -54,6 +54,6 @@ if __name__ == "__main__":
         Path(__file__).resolve().parent.parent
         / "data"
         / "sample_statements"
-        / "test_statement.csv"
+        / "extracted_from_pdf.csv"
     )
     process_statement(sample_path)
