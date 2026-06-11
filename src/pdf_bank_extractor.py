@@ -1,4 +1,4 @@
-"""Extract bank transactions from PDF statements using vision AI."""
+"""Extract bank transactions from PDF statements using a two-pass Groq pipeline."""
 
 import base64
 import io
@@ -23,75 +23,38 @@ load_dotenv()
 client = Groq(api_key=os.getenv("GROQ_API_KEY"))
 
 VISION_MODEL = "meta-llama/llama-4-scout-17b-16e-instruct"
+TEXT_MODEL = "llama-3.3-70b-versatile"
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 SAMPLE_STATEMENTS_DIR = BASE_DIR / "data" / "sample_statements"
 DUMMY_PDF_PATH = SAMPLE_STATEMENTS_DIR / "dummy_statement.pdf"
 OUTPUT_CSV_PATH = SAMPLE_STATEMENTS_DIR / "extracted_from_pdf.csv"
 
-BANK_STATEMENT_VISION_PROMPT = """
-You are an expert bank statement parser.
-
-Bank statements often have TWO types of pages:
-1. TRANSACTION PAGES — chronological list with running balance column
-2. DETAIL PAGES — same transactions grouped by type (deposits, withdrawals, checks paid)
-
-STEP 1: Identify this page type:
-- "transaction" — chronological transaction table with running balance
-- "detail" — transactions grouped by section headers (Deposits, Withdrawals, etc.)
-- "summary" — account summary, totals only, no individual transactions
-
-STEP 2: Extract based on page type.
-
-Return ONLY this JSON object. No markdown. No other text:
-{"page_type":"transaction|detail|summary","items":[...]}
-
---- TRANSACTION PAGE format ---
-{"page_type":"transaction","items":[
-  {"date":"MM/DD","description":"POS PURCHASE","amount":4.23,"type":"debit"},
-  {"date":"MM/DD","description":"PREAUTHORIZED CREDIT","amount":763.01,"type":"credit"}
-]}
-
---- DETAIL PAGE format (merchant names only) ---
-{"page_type":"detail","items":[
-  {"date":"MM/DD","amount":4.23,"merchant_detail":"WAL-MART #3492 WICHITA KS"},
-  {"date":"MM/DD","amount":763.01,"merchant_detail":"ACME CORP PAYROLL DEPOSIT"}
-]}
-
---- SUMMARY PAGE ---
-{"page_type":"summary","items":[]}
-
-Rules:
-- Skip summary rows, totals, and section headers
-- Debit = money out, Credit = money in
-- On detail pages extract real merchant/payee names, NOT generic labels
-- Return ONLY valid JSON
+TRANSCRIBE_PROMPT = """
+Transcribe ALL text from this bank statement exactly as you see it, preserving the layout with spaces and line breaks. Include every word, number, symbol, and date — especially the statement period dates in the header which contain the year.
 """
 
-TRANSACTION_PAGE_VISION_PROMPT = """
-Extract transactions from this TRANSACTION PAGE (chronological table with running balance).
-
-Return ONLY a JSON array:
-[{"date":"MM/DD","description":"POS PURCHASE","amount":4.23,"type":"debit"}]
+PARSE_TRANSACTIONS_PROMPT = """You are an expert accountant. Below is raw text from a bank statement. Extract EVERY transaction.
 
 Rules:
-- Skip summary rows, totals, section headers
-- Debit = money out, Credit = money in
-- Return ONLY valid JSON array, no other text
-"""
+- If multiple transactions share one date row, extract each separately with the same date
+- If a row has no date, use the most recent date
+- Skip: balance brought forward, totals, headers, opening/closing balance rows
+- Money out/debit = money leaving account
+- Money in/credit = money entering account
 
-DETAIL_PAGE_VISION_PROMPT = """
-Extract MERCHANT DETAILS from this DETAIL PAGE (transactions grouped by deposits/withdrawals/checks).
+CRITICAL RULE about missing dates:
+When a row has no date, it ALWAYS belongs to the most recent date above it. Example:
+| 24 February | Anytown Jewelers | 150.00 out |
+|             | Direct Deposit   | 25.00 in   |
+Both get date 24 February. Extract BOTH.
+Never skip a dateless row - it is always a real transaction sharing the date above it.
 
-Return ONLY a JSON array:
-[{"date":"MM/DD","amount":4.23,"merchant_detail":"WAL-MART #3492 WICHITA KS"}]
+Return ONLY valid JSON array:
+[{{"date":"...","description":"...","amount":0.00,"type":"debit or credit"}}]
 
-Rules:
-- Extract real merchant/payee/store names from detail rows
-- Do NOT return generic labels like "POS PURCHASE" or "CHECK 1234"
-- Skip section headers and totals
-- Return ONLY valid JSON array, no other text
-"""
+RAW TEXT:
+{raw_text}"""
 
 
 def _parse_json_array(raw: str) -> list[dict]:
@@ -124,46 +87,6 @@ def _parse_json_array(raw: str) -> list[dict]:
     if isinstance(parsed, dict) and "error" in parsed:
         raise ValueError(parsed["error"])
     raise ValueError("Expected a JSON array of transactions")
-
-
-def _parse_page_extraction(raw: str) -> tuple[str, list[dict]]:
-    """Parse vision response into (page_type, items)."""
-    text = raw.strip()
-    fence_match = re.search(r"```(?:json)?\s*([\s\S]*?)\s*```", text)
-    if fence_match:
-        text = fence_match.group(1).strip()
-
-    candidates = [text]
-    object_match = re.search(r"\{[\s\S]*\}", text)
-    array_match = re.search(r"\[[\s\S]*\]", text)
-    if object_match:
-        candidates.append(object_match.group(0))
-    if array_match:
-        candidates.append(array_match.group(0))
-
-    parsed = None
-    last_error: json.JSONDecodeError | None = None
-    for candidate in candidates:
-        try:
-            parsed = json.loads(candidate)
-            break
-        except json.JSONDecodeError as e:
-            last_error = e
-
-    if parsed is None:
-        raise last_error or json.JSONDecodeError("No JSON found", raw, 0)
-
-    if isinstance(parsed, list):
-        return "transaction", parsed
-
-    if isinstance(parsed, dict):
-        page_type = str(parsed.get("page_type", "transaction")).lower().strip()
-        items = parsed.get("items", [])
-        if not isinstance(items, list):
-            items = []
-        return page_type, items
-
-    raise ValueError("Expected a JSON object or array")
 
 
 def _parse_amount(value) -> float | None:
@@ -222,16 +145,7 @@ def pdf_to_images(pdf_path: str | Path) -> list[Image.Image]:
         ) from e
 
 
-def extract_transactions_from_page(image: Image.Image, page_num: int) -> list[dict]:
-    """Legacy helper — returns transaction rows only from a page."""
-    transactions, _ = extract_page_data(image, page_num)
-    return transactions
-
-
-def extract_page_data(
-    image: Image.Image, page_num: int
-) -> tuple[list[dict], list[dict]]:
-    """Extract transaction rows and merchant details from one statement page."""
+def transcribe_page(image: Image.Image, page_num: int) -> str:
     data_uri = _pil_image_to_base64(image)
 
     try:
@@ -241,7 +155,7 @@ def extract_page_data(
                 {
                     "role": "user",
                     "content": [
-                        {"type": "text", "text": BANK_STATEMENT_VISION_PROMPT},
+                        {"type": "text", "text": TRANSCRIBE_PROMPT},
                         {
                             "type": "image_url",
                             "image_url": {"url": data_uri},
@@ -250,42 +164,59 @@ def extract_page_data(
                 }
             ],
         )
-        raw = response.choices[0].message.content or ""
+        text = (response.choices[0].message.content or "").strip()
+        print(f"  Page {page_num}: transcribed {len(text)} characters")
+        return text
     except Exception as e:
-        print(f"  Page {page_num}: API error - {e}")
-        return [], []
+        print(f"  Page {page_num}: transcription error - {e}")
+        return ""
+
+
+def parse_transactions_from_text(raw_text: str) -> list[dict]:
+    if not raw_text.strip():
+        return []
+
+    prompt = PARSE_TRANSACTIONS_PROMPT.format(raw_text=raw_text)
 
     try:
-        page_type, items = _parse_page_extraction(raw)
+        response = client.chat.completions.create(
+            model=TEXT_MODEL,
+            messages=[{"role": "user", "content": prompt}],
+        )
+        raw = response.choices[0].message.content or ""
+    except Exception as e:
+        print(f"  Parse error (API): {e}")
+        return []
+
+    try:
+        items = _parse_json_array(raw)
     except (json.JSONDecodeError, ValueError) as e:
-        print(f"  Page {page_num}: parse error - {e}")
-        print(f"  Page {page_num}: raw AI response:\n{raw}")
-        return [], []
+        print(f"  Parse error (JSON): {e}")
+        print(f"  Raw AI response:\n{raw}")
+        return []
 
     transactions: list[dict] = []
-    merchant_details: list[dict] = []
-
-    if page_type == "summary":
-        print(f"  Page {page_num}: summary page — skipped")
-        return [], []
-
-    if page_type == "detail":
-        for item in items:
-            detail = _normalize_merchant_detail(item)
-            if detail:
-                merchant_details.append(detail)
-        print(
-            f"  Page {page_num}: detail page — "
-            f"{len(merchant_details)} merchant detail(s)"
-        )
-        return [], merchant_details
-
     for item in items:
         normalized = _normalize_transaction(item)
         if normalized and normalized["description"]:
             transactions.append(normalized)
 
-    print(f"  Page {page_num}: transaction page — {len(transactions)} transaction(s)")
+    return transactions
+
+
+def extract_transactions_from_page(image: Image.Image, page_num: int) -> list[dict]:
+    page_text = transcribe_page(image, page_num)
+    return parse_transactions_from_text(page_text)
+
+
+def extract_page_data(
+    image: Image.Image, page_num: int
+) -> tuple[list[dict], list[dict]]:
+    transactions = extract_transactions_from_page(image, page_num)
+    if transactions:
+        print(f"  Page {page_num}: {len(transactions)} transaction(s)")
+    else:
+        print(f"  Page {page_num}: no transactions found")
     return transactions, []
 
 
@@ -324,7 +255,6 @@ def _normalize_merchant_detail(item: dict) -> dict | None:
 def _merge_merchant_details(
     transactions: list[dict], merchant_details: list[dict]
 ) -> tuple[list[dict], int]:
-    """Replace generic descriptions with merchant details matched by date + amount."""
     detail_map: dict[tuple[str, float], str] = {}
     for detail in merchant_details:
         key = _detail_match_key(detail["date"], detail["amount"])
@@ -345,7 +275,6 @@ def _merge_merchant_details(
 
 
 def _deduplicate_transactions(transactions: list[dict]) -> list[dict]:
-    """Remove duplicates with the same date, amount, and type."""
     seen: set[tuple] = set()
     unique: list[dict] = []
 
@@ -363,31 +292,36 @@ def extract_bank_statement_from_pdf(
     pdf_path: str | Path,
     output_csv: str | Path | None = None,
 ) -> list[dict]:
-    """Convert PDF pages to images and extract all transactions via Groq vision."""
     csv_path = Path(output_csv) if output_csv else OUTPUT_CSV_PATH
     csv_path.parent.mkdir(parents=True, exist_ok=True)
 
     print(f"Converting PDF to images: {pdf_path}")
     pages = pdf_to_images(pdf_path)
-    print(f"Processing {len(pages)} page(s)...")
+    print(f"Pass 1: Transcribing {len(pages)} page(s)...")
 
-    all_transactions: list[dict] = []
-    all_merchant_details: list[dict] = []
-
+    page_texts: list[str] = []
     for page_num, page_image in enumerate(pages, start=1):
-        page_txns, page_details = extract_page_data(page_image, page_num)
-        all_transactions.extend(page_txns)
-        all_merchant_details.extend(page_details)
+        page_text = transcribe_page(page_image, page_num)
+        if page_text:
+            page_texts.append(f"--- PAGE {page_num} ---\n{page_text}")
 
-    enriched_count = 0
-    if all_merchant_details:
-        all_transactions, enriched_count = _merge_merchant_details(
-            all_transactions, all_merchant_details
-        )
+    combined_text = "\n\n".join(page_texts)
+    print(f"\nPass 2: Parsing transactions from {len(combined_text)} characters...")
+
+    # Extract year from statement text generically
+    year_match = re.search(r'\b(20\d{2}|19\d{2})\b', combined_text)
+    statement_year = year_match.group(1) if year_match else None
+
+    all_transactions = parse_transactions_from_text(combined_text)
 
     before_dedup = len(all_transactions)
     all_transactions = _deduplicate_transactions(all_transactions)
     duplicates_removed = before_dedup - len(all_transactions)
+
+    # Add year to every transaction
+    if statement_year:
+        for t in all_transactions:
+            t['year'] = statement_year
 
     pd.DataFrame(all_transactions).to_csv(csv_path, index=False)
 
@@ -397,10 +331,10 @@ def extract_bank_statement_from_pdf(
     total_credits = sum(t["amount"] for t in all_transactions if t["type"] == "credit")
 
     print("\n--- Extraction Summary ---")
-    print(f"Pages processed:       {len(pages)}")
-    print(f"Merchant details:      {len(all_merchant_details)}")
-    print(f"Descriptions enriched: {enriched_count}")
-    print(f"Transactions found:    {len(all_transactions)}")
+    print(f"Pages processed:     {len(pages)}")
+    if statement_year:
+        print(f"Year detected:       {statement_year}")
+    print(f"Transactions found:  {len(all_transactions)}")
     if duplicates_removed:
         print(f"Duplicates removed:  {duplicates_removed}")
     print(f"  Debits:            {debits} (${total_debits:,.2f})")
@@ -411,7 +345,6 @@ def extract_bank_statement_from_pdf(
 
 
 def create_dummy_statement_pdf(output_path: str | Path | None = None) -> Path:
-    """Create a sample bank statement PDF for testing extraction."""
     path = Path(output_path) if output_path else DUMMY_PDF_PATH
     path.parent.mkdir(parents=True, exist_ok=True)
 
@@ -468,14 +401,12 @@ def create_dummy_statement_pdf(output_path: str | Path | None = None) -> Path:
 
 
 if __name__ == "__main__":
-    pdf_path = BASE_DIR / "data" / "sample_statements" / "dummy_statement.pdf"
+    pdf_path = BASE_DIR / "data" / "sample_statements" / "Bank Statement Example Final.pdf"
     output_csv = BASE_DIR / "data" / "sample_statements" / "extracted_from_pdf.csv"
 
     if not pdf_path.exists():
-        print(f"Creating dummy statement at {pdf_path}...")
-        create_dummy_statement_pdf(pdf_path)
-
-    print(f"Input PDF:  {pdf_path}")
-    print(f"Output CSV: {output_csv}")
-
-    extract_bank_statement_from_pdf(pdf_path, output_csv)
+        print(f"PDF not found: {pdf_path}")
+    else:
+        print(f"Input PDF:  {pdf_path}")
+        print(f"Output CSV: {output_csv}")
+        extract_bank_statement_from_pdf(pdf_path, output_csv)

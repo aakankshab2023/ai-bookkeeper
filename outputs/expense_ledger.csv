@@ -1,18 +1,10 @@
 date,description,amount,category,confidence
-10/04,PLAYERS SPORTS BAR AND GRILL,11.68,Meals,0.95
-10/14,WICHITA KS,18.96,Meals,0.8
-10/22,EAST HARRY WICHITA KS,140.0,Meals,0.8
-10/30,DILLONS,18.67,Meals,0.85
-10/05,CHECK 1234,9.98,Office,0.8
-10/12,CHECK 1236,69.0,Office,0.8
-10/28,CHECK 1238,91.06,Office,0.8
-10/30,CHECK 1246,37.07,Office,0.8
-10/31,CHECK 1247,100.0,Office,0.8
-10/31,CHECK 1248,78.24,Office,0.8
-11/02,CHECK 1249,52.23,Office,0.8
-10/02,WAL-MART #3492 WICHITA KS,4.23,Other,0.8
-10/05,KWAN COURT,25.5,Other,0.8
-10/08,POS PURCHASE,59.08,Other,0.5
-11/09,SERVICE CHARGE,12.0,Other,0.8
-10/14,CHECK 1237,180.63,Rent,0.8
-10/30,CHECK 1239,451.2,Rent,0.8
+18 February,Randomford's Deli,15.0,Meals,0.95
+1 February,Card payment - High St Petrol Station,24.5,Other,0.8
+16 February,"Cash Withdrawal - RandomBank, Randomford, timed 9.52 14 Feb",50.0,Other,0.8
+17 February,Card payment - High St Petrol Station,40.0,Other,0.8
+17 February,Direct Debit - Home Insurance,78.34,Other,0.95
+24 February,Anytown's Jewelers,150.0,Other,0.8
+3 February,"Cash Withdrawal - YourBank, Anytown High Street, timed 17:30 31 Jan",30.0,Other,0.8
+28 February,Monthly Apartment Rent,987.33,Rent,0.99
+1 February,Direct debit - Green Mobile Phone Bill,20.0,Utilities,0.95

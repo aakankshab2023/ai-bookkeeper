@@ -60,14 +60,20 @@ def load_bank_statement(file_path: str | Path) -> list[dict]:
             else:
                 txn_type, amount = "credit", amount
 
-        transactions.append(
-            {
-                "date": date,
-                "description": description,
-                "amount": amount,
-                "type": txn_type,
-            }
-        )
+        txn = {
+            "date": date,
+            "description": description,
+            "amount": amount,
+            "type": txn_type,
+        }
+        # Pass through any extra columns like year
+        for col in df.columns:
+            if col not in ["date", "description", "amount", "type",
+                          date_col, desc_col, "debit", "credit"] and col not in txn:
+                val = row[col]
+                if not pd.isna(val):
+                    txn[col] = val
+        transactions.append(txn)
 
     print(f"Loaded {len(transactions)} transactions")
     return transactions

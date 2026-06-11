@@ -1,22 +1,14 @@
-date,description,amount,type,category,confidence,reasoning
-10/02,WAL-MART #3492 WICHITA KS,4.23,debit,Other,0.8,Walmart is a general retailer
-10/03,PAYROLL 0987654 678990,763.01,credit,Income,0.99,Transaction is a credit and labeled as payroll
-10/04,PLAYERS SPORTS BAR AND GRILL,11.68,debit,Meals,0.95,Transaction is at a sports bar and grill
-10/05,CHECK 1234,9.98,debit,Office,0.8,Check suggests a possible office supply purchase
-10/05,KWAN COURT,25.5,debit,Other,0.8,Unknown transaction type
-10/08,POS PURCHASE,59.08,debit,Other,0.5,Unknown transaction type
-10/12,CHECK 1236,69.0,debit,Office,0.8,Check payment suggests office supply purchase
-10/14,CHECK 1237,180.63,debit,Rent,0.8,Transaction is a check debit
-10/14,WICHITA KS,18.96,debit,Meals,0.8,Transaction appears to be a food purchase
-10/16,US TREASURY 310 SOC SEC 020802 509499853A SSA,763.01,credit,Income,0.99,It's a social security payment
-10/22,EAST HARRY WICHITA KS,140.0,debit,Meals,0.8,Transaction appears to be a restaurant purchase
-10/28,CHECK 1238,91.06,debit,Office,0.8,Check suggests a payment for supplies
-10/30,CHECK 1239,451.2,debit,Rent,0.8,CHECK suggests a bill payment
-10/30,CHECK 1246,37.07,debit,Office,0.8,Check suggests a physical purchase
-10/30,DILLONS,18.67,debit,Meals,0.85,Dillons is a grocery store
-10/31,CHECK 1247,100.0,debit,Office,0.8,Check is likely for office supplies
-10/31,CHECK 1248,78.24,debit,Office,0.8,Check suggests a purchase of supplies
-10/31,DEPOSIT TERMINAL S097094 09809 523 PM 0970837400597380032,350.0,credit,Income,1.0,It's a credit transaction
-11/02,CHECK 1249,52.23,debit,Office,0.8,Check transactions are often for supplies
-11/09,INTEREST CREDIT,0.26,credit,Income,1.0,It is a credit transaction
-11/09,SERVICE CHARGE,12.0,debit,Other,0.8,It's a generic service charge
+date,description,amount,type,year,category,confidence,reasoning
+1 February,Card payment - High St Petrol Station,24.5,debit,2019,Other,0.8,It appears to be a fuel purchase
+1 February,Direct debit - Green Mobile Phone Bill,20.0,debit,2019,Utilities,0.95,Mobile phone bill is a utility expense
+3 February,"Cash Withdrawal - YourBank, Anytown High Street, timed 17:30 31 Jan",30.0,debit,2019,Other,0.8,It's a cash withdrawal
+4 February,YourJob BiWeekly Payment,2575.0,credit,2019,Income,1.0,It's a biweekly payment from an employer
+11 February,"Direct Deposit - YourBank, Anytown High Street, timed 17:30 31 Jan",300.0,credit,2019,Income,1.0,It's a direct deposit transaction.
+16 February,"Cash Withdrawal - RandomBank, Randomford, timed 9.52 14 Feb",50.0,debit,2019,Other,0.8,It's an unknown debit transaction
+17 February,Card payment - High St Petrol Station,40.0,debit,2019,Other,0.8,It appears to be a fuel purchase
+17 February,Direct Debit - Home Insurance,78.34,debit,2019,Other,0.95,Home insurance is a personal expense
+18 February,YourJob BiWeekly Payment,2575.0,credit,2019,Income,1.0,It's a biweekly payment to the account
+18 February,Randomford's Deli,15.0,debit,2019,Meals,0.95,Transaction is at a deli
+24 February,Anytown's Jewelers,150.0,debit,2019,Other,0.8,Jewelers is not a standard business expense category
+24 February,Direct Deposit,25.0,credit,2019,Income,1.0,It's a direct deposit credit transaction
+28 February,Monthly Apartment Rent,987.33,debit,2019,Rent,0.99,Transaction is a monthly apartment rent payment

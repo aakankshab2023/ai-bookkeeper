@@ -1,16 +1,12 @@
 import shutil
 from pathlib import Path
-from typing import List
+from typing import List, Optional
 
 from fastapi import FastAPI, File, HTTPException, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, JSONResponse
 
-from extract import categorize_transaction
-from ingest import load_bank_statement
-from invoice_extractor import extract_invoice_data
 from main_pipeline import run_full_pipeline
-from receipt_extractor import extract_receipt_data
 from report_generator import generate_report
 
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -58,9 +54,19 @@ async def health():
 @app.post("/process")
 async def process(
     bank_statement: UploadFile = File(...),
-    invoices: List[UploadFile] = File(default=[]),
-    receipts: List[UploadFile] = File(default=[]),
+    invoices: Optional[List[UploadFile]] = File(default=None),
+    receipts: Optional[List[UploadFile]] = File(default=None),
 ):
+    if invoices is None:
+        invoices = []
+    else:
+        invoices = [f for f in invoices if f.filename]
+
+    if receipts is None:
+        receipts = []
+    else:
+        receipts = [f for f in receipts if f.filename]
+
     if not bank_statement.filename:
         raise HTTPException(status_code=400, detail="bank_statement file is required")
 
@@ -70,6 +76,7 @@ async def process(
     _clear_upload_dir(receipts_dir)
 
     statement_path = UPLOADS_DIR / (bank_statement.filename or "bank_statement.csv")
+
     try:
         await _save_upload(bank_statement, statement_path)
 
@@ -81,6 +88,13 @@ async def process(
             if receipt.filename:
                 await _save_upload(receipt, receipts_dir / receipt.filename)
 
+        # Handle PDF bank statements
+        if statement_path.suffix.lower() == ".pdf":
+            from pdf_bank_extractor import extract_bank_statement_from_pdf
+            csv_path = UPLOADS_DIR / "extracted_bank_statement.csv"
+            extract_bank_statement_from_pdf(statement_path, csv_path)
+            statement_path = csv_path
+
         result = run_full_pipeline(
             bank_statement_path=statement_path,
             invoices_folder=invoices_dir,
@@ -89,7 +103,8 @@ async def process(
 
         pdf_ready = False
         try:
-            generate_report(REPORT_PATH)
+            from report_generator import generate_report
+            generate_report()
             pdf_ready = REPORT_PATH.exists()
         except Exception as e:
             print(f"PDF generation failed: {e}")
@@ -126,5 +141,4 @@ async def download_report():
 
 if __name__ == "__main__":
     import uvicorn
-
     uvicorn.run(app, host="0.0.0.0", port=8000)

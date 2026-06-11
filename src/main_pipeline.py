@@ -18,7 +18,7 @@ STATEMENT_PATH = DATA_DIR / "sample_statements" / "extracted_from_pdf.csv"
 INVOICES_DIR = DATA_DIR / "sample_invoices"
 RECEIPTS_DIR = DATA_DIR / "sample_receipts"
 
-PERIOD_LABEL = "January - March 2024"
+DEFAULT_PERIOD_LABEL = "Unknown period"
 AMOUNT_TOLERANCE = 0.01
 
 
@@ -45,6 +45,29 @@ def _format_money(amount: float) -> str:
 
 def _amounts_match(a: float, b: float) -> bool:
     return abs(a - b) <= AMOUNT_TOLERANCE
+
+
+def _get_period_label(transactions: list[dict]) -> str:
+    dates = [t.get("date", "") for t in transactions if t.get("date")]
+    if not dates:
+        return "Unknown Period"
+
+    # Extract year from transactions if available
+    years = []
+    for t in transactions:
+        year = t.get("year", "")
+        if year and str(year) not in ("", "nan", "None"):
+            years.append(str(int(float(str(year)))))
+
+    # Also search for year in date strings themselves
+    if not years:
+        for d in dates:
+            year_match = re.search(r'\b(20\d{2}|19\d{2})\b', str(d))
+            if year_match:
+                years.append(year_match.group(1))
+
+    year_suffix = f" {years[0]}" if years else ""
+    return f"{dates[0]} {year_suffix.strip()} to {dates[-1]} {year_suffix.strip()}"
 
 
 def _categorize_transactions(transactions: list[dict]) -> list[dict]:
@@ -186,11 +209,12 @@ def _print_summary(
     unpaid_total: float,
     matched_count: int,
     unmatched_count: int,
+    period_label: str,
 ) -> None:
     width = 32
     print("\n" + "=" * width)
     print("LEDGERAI - BOOKS OF ACCOUNTS")
-    print(f"Period: {PERIOD_LABEL}")
+    print(f"Period: {period_label}")
     print("=" * width)
     print("INCOME")
     print(f"Total Revenue:        {_format_money(total_income):>12}")
@@ -230,6 +254,9 @@ def run_full_pipeline(
     except Exception as e:
         print(f"Failed to load bank statement: {e}")
         raw_transactions = []
+
+    period_label = _get_period_label(raw_transactions)
+    print(f"Statement period: {period_label}")
 
     categorized = _categorize_transactions(raw_transactions) if raw_transactions else []
     income = [t for t in categorized if t["type"] == "credit"]
@@ -297,6 +324,7 @@ def run_full_pipeline(
         unpaid_total=unpaid_total,
         matched_count=matched_count,
         unmatched_count=unmatched_count,
+        period_label=period_label,
     )
 
     return {
@@ -310,6 +338,7 @@ def run_full_pipeline(
             "receipts_processed": len(receipts),
             "matched_transactions": matched_count,
             "unmatched_transactions": unmatched_count,
+            "period_label": period_label,
         },
         "pl_statement": pl_rows,
         "cash_book": categorized,
